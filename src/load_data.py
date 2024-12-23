@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import col
 
 spark = SparkSession.builder \
     .appName("load_data") \
@@ -12,5 +13,13 @@ df = spark.read \
 
 df.show()
 df.printSchema()
+
+column1 = df.Close
+column2 = df["Close"]
+column3 = col("Close")
+
+df.select(column1, column2, column3).show()
+
+df.select("Date", "Close", "Open").show()
 
 spark.stop()
