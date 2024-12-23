@@ -1,29 +1,28 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.functions import col
-from pyspark.sql.types import StringType
+from pyspark.sql.types import StringType, DateType, DoubleType
 
 spark = SparkSession.builder \
     .appName("load_data") \
     .master("local[*]") \
     .getOrCreate()
 
-df = spark.read \
-    .option("header", True) \
-    .option("inferSchema", True) \
-    .csv("../data/AAPL.csv")
 
-df.show()
-df.printSchema()
+def load_stock_data(symbol: str) -> DataFrame:
+    df = spark.read \
+        .option("header", True) \
+        .csv(f"../data/{symbol}.csv")
 
-column1 = df.Close
-column2 = df["Close"]
-column3 = col("Close")
+    return df.select(
+        df["Date"].cast(DateType()).alias("date"),
+        df["Open"].cast(DoubleType()).alias("open"),
+        df["Close"].cast(DoubleType()).alias("close"),
+        df["High"].cast(DoubleType()).alias("high"),
+        df["Low"].cast(DoubleType()).alias("low"),
+    )
 
-df.select(column1, column2, column3).show()
 
-df.select("Date", "Close", "Open").show()
-
-date_as_string = df["Date"].cast(StringType()).alias("date")
-df.select(df["Date"], date_as_string).show()
+aapl_df = load_stock_data("AAPL")
+aapl_df.show()
 
 spark.stop()
