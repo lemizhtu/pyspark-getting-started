@@ -6,6 +6,7 @@ spark = SparkSession.builder \
     .getOrCreate()
 
 df = spark.read \
+    .option("header", True) \
     .csv("../data/AAPL.csv")
 
 df.show()
