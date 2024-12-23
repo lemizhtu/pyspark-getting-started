@@ -7,8 +7,10 @@ spark = SparkSession.builder \
 
 df = spark.read \
     .option("header", True) \
+    .option("inferSchema", True) \
     .csv("../data/AAPL.csv")
 
 df.show()
+df.printSchema()
 
 spark.stop()
