@@ -31,4 +31,8 @@ concat_column = concat(date_of_string, lit(" Hello, World!"))
 
 aapl_df.select("date", concat_column.alias("transformed_date")).show(truncate=False)
 
+aapl_df.createOrReplaceTempView("df")
+
+spark.sql("SELECT date, concat(cast(date_add(date, 2) as string), ' Hello, World!') as transformed_date FROM df").show(truncate=False)
+
 spark.stop()
