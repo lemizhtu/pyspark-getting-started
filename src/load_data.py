@@ -1,5 +1,5 @@
-from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
 from pyspark.sql.types import StringType, DateType, DoubleType
 
 spark = SparkSession.builder \
@@ -24,5 +24,11 @@ def load_stock_data(symbol: str) -> DataFrame:
 
 aapl_df = load_stock_data("AAPL")
 aapl_df.show()
+
+date_plus_2 = date_add(aapl_df["date"], 2)
+date_of_string = date_plus_2.cast(StringType())
+concat_column = concat(date_of_string, lit(" Hello, World!"))
+
+aapl_df.select("date", concat_column.alias("transformed_date")).show(truncate=False)
 
 spark.stop()
