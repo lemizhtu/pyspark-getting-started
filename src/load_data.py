@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Window
 from pyspark.sql.functions import *
 from pyspark.sql.types import StringType, DateType, DoubleType
 
@@ -24,14 +24,9 @@ def load_stock_data(symbol: str) -> DataFrame:
 
 aapl_df = load_stock_data("AAPL")
 
-aapl_df.groupby("date").max("close").show()
-aapl_df.groupby(
-    year(aapl_df["date"]).alias("year"),
-    month(aapl_df["date"], ).alias("month"),
-).agg(
-    max("close").alias("max_close"),
-    avg("close").alias("avg_close"),
-    sum("open").alias("sum_open"),
-).sort(col("max_close").desc()).show()
+window = Window.partitionBy(year(aapl_df["date"])).orderBy(aapl_df["close"].desc(), aapl_df["date"])
+aapl_df.withColumn("rank", row_number().over(window)) \
+    .filter(col("rank") == 1) \
+    .show()
 
 spark.stop()
