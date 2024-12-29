@@ -24,9 +24,9 @@ def load_stock_data(symbol: str) -> DataFrame:
 
 aapl_df = load_stock_data("AAPL")
 
-window = Window.partitionBy(year(aapl_df["date"])).orderBy(aapl_df["close"].desc(), aapl_df["date"])
-aapl_df.withColumn("rank", row_number().over(window)) \
-    .filter(col("rank") == 1) \
+window = Window.partitionBy().orderBy(aapl_df["date"])
+aapl_df.withColumn("previous_date_close", lag(aapl_df["close"], 1, 0.0).over(window)) \
+    .withColumn("diff_prev_close", aapl_df["open"] - col("previous_date_close")) \
     .show()
 
 spark.stop()
