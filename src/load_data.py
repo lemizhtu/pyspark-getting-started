@@ -23,9 +23,15 @@ def load_stock_data(symbol: str) -> DataFrame:
 
 
 aapl_df = load_stock_data("AAPL")
-aapl_df.sort("date").show()
-aapl_df.sort(aapl_df["date"].desc()).show()
-aapl_df.sort(date_add(aapl_df["date"], 2).desc()).show()
-aapl_df.sort(aapl_df["date"].desc(), aapl_df["close"].desc()).show()
+
+aapl_df.groupby("date").max("close").show()
+aapl_df.groupby(
+    year(aapl_df["date"]).alias("year"),
+    month(aapl_df["date"], ).alias("month"),
+).agg(
+    max("close").alias("max_close"),
+    avg("close").alias("avg_close"),
+    sum("open").alias("sum_open"),
+).sort(col("max_close").desc()).show()
 
 spark.stop()
